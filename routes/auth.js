@@ -4,12 +4,13 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../controllers/auth');
+const jwt = require('jsonwebtoken')
 
 // Import the User model for database operations
 const User = require('../models/user');
 
 // Route for user login
-router.post('/login', async (req, res) => {
+router.post('/login', verifyToken, async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -34,7 +35,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Route for user registration
-router.post('/register', async (req, res) => {
+router.post('/register', verifyToken, async (req, res) => {
     const { fullname, email, password } = req.body;
 
     try {
@@ -62,6 +63,16 @@ router.post('/register', async (req, res) => {
 
 // Function to generate JWT token
 function generateToken(user) {
+    // user._id
+    const payload = {
+        id: user.id,
+        email: user.email
+    }
+
+    const secret = 'your_secret_key';
+    const options = { expiresIn: '1h' };
+
+    return jwt.sign(payload, secret, options);
     // Implement JWT token generation logic here
     // For example, you can use the jsonwebtoken package
     // Return the generated token
